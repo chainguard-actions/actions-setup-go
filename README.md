@@ -1,6 +1,12 @@
 # actions/setup-go
 
-Hardened GitHub Action by [Chainguard](https://www.chainguard.dev).
+Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/actions/setup-go](https://github.com/actions/setup-go).
+
+## Versions
+
+| Version | Tag | Upstream commit |
+|---------|-----|-----------------|
+| v6.3.0 | [`v6.3.0`](https://github.com/chainguard-actions/setup-go/tree/v6.3.0) | — |
 
 ## Privacy
 
