@@ -1,5 +1,7 @@
 # actions/setup-go
 
+Set up your GitHub Actions workflow with a specific version of Go
+
 Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/actions/setup-go](https://github.com/actions/setup-go).
 
 ## Versions
