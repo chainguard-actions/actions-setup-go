@@ -1,4 +1,6 @@
 {
-  "upstream": "actions/setup-go",
-  "version": "v6.3.0"
+  "owner": "actions",
+  "repo": "setup-go",
+  "version": "",
+  "url": "https://github.com/actions/setup-go"
 }
