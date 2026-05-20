@@ -1,7 +1,0 @@
-{
-  "owner": "actions",
-  "name": "setup-go",
-  "visibility": "internal",
-  "description": "Set up your GitHub Actions workflow with a specific version of Go",
-  "block_publish": false
-}
