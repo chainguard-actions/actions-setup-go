@@ -1,0 +1,40 @@
+name: Test Go setup from .go-version file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create .go-version file
+        run: |
+          echo "1.22.3" > /tmp/.go-version
+      - id: setup-go
+        uses: .
+        with:
+          go-version-file: '/tmp/.go-version'
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          ACTUAL: ${{ steps.setup-go.outputs.go-version }}
+        run: |
+          echo "actual go-version output: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$ACTUAL'"
+      - name: Assert Go binary is in PATH
+        run: |
+          which go
+          go version
+          echo "PASS: go binary found in PATH"
+      - name: Assert Go version matches .go-version file
+        run: |
+          INSTALLED=$(go version | grep -oP 'go\K[0-9]+\.[0-9]+\.[0-9]+')
+          echo "installed version: $INSTALLED"
+          if [ "$INSTALLED" != "1.22.3" ]; then
+            echo "FAIL: expected Go 1.22.3 from .go-version, got $INSTALLED"
+            exit 1
+          fi
+          echo "PASS"

@@ -1,0 +1,38 @@
+name: Test Go setup with cache disabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: setup-go
+        uses: .
+        with:
+          go-version: '1.23.x'
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          ACTUAL: ${{ steps.setup-go.outputs.go-version }}
+        run: |
+          echo "actual go-version output: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$ACTUAL'"
+      - name: Assert Go binary is in PATH
+        run: |
+          which go
+          go version
+          echo "PASS: go binary found in PATH"
+      - name: Assert cache-hit output is not true (cache disabled)
+        env:
+          CACHE_HIT: ${{ steps.setup-go.outputs.cache-hit }}
+        run: |
+          echo "cache-hit output: '$CACHE_HIT'"
+          if [ "$CACHE_HIT" = "true" ]; then
+            echo "FAIL: cache-hit should not be true when cache is disabled"
+            exit 1
+          fi
+          echo "PASS: cache-hit is not true as expected"
