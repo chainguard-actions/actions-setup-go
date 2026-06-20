@@ -1,0 +1,45 @@
+name: Test Go setup from go.mod version file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create a go.mod file specifying Go version
+        run: |
+          mkdir -p /tmp/goproject
+          cat > /tmp/goproject/go.mod <<'EOF'
+          module example.com/test
+
+          go 1.21
+          EOF
+      - id: setup
+        uses: .
+        with:
+          go-version-file: '/tmp/goproject/go.mod'
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          ACTUAL: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "actual go-version: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$ACTUAL'"
+      - name: Assert Go binary is available
+        run: |
+          which go
+          go version
+          echo "PASS: go binary found in PATH"
+      - name: Assert installed version matches go.mod
+        run: |
+          INSTALLED=$(go version | awk '{print $3}' | sed 's/go//')
+          echo "installed version: $INSTALLED"
+          if [[ "$INSTALLED" != 1.21* ]]; then
+            echo "FAIL: expected version starting with 1.21, got $INSTALLED"
+            exit 1
+          fi
+          echo "PASS: installed version $INSTALLED matches go.mod spec"

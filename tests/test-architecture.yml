@@ -1,0 +1,38 @@
+name: Test Go setup with explicit architecture
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: setup
+        uses: .
+        with:
+          go-version: '1.21.x'
+          architecture: 'x64'
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          ACTUAL: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "actual go-version: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$ACTUAL'"
+      - name: Assert Go binary is available
+        run: |
+          which go
+          go version
+          echo "PASS: go binary found in PATH"
+      - name: Assert Go architecture is amd64
+        run: |
+          GOARCH=$(go env GOARCH)
+          echo "GOARCH: $GOARCH"
+          if [ "$GOARCH" != "amd64" ]; then
+            echo "FAIL: expected GOARCH=amd64, got $GOARCH"
+            exit 1
+          fi
+          echo "PASS: GOARCH is amd64 as expected for x64"
