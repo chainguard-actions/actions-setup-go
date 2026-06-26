@@ -1,0 +1,48 @@
+name: Test Go setup with semver range
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          go-version: '>=1.20.0 <1.22.0'
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          ACTUAL: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "actual go-version: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$ACTUAL'"
+      - name: Assert Go binary is in PATH
+        run: |
+          if ! command -v go &>/dev/null; then
+            echo "FAIL: go binary not found in PATH"
+            exit 1
+          fi
+          echo "PASS: go found at $(command -v go)"
+      - name: Assert installed Go version is within range
+        run: |
+          INSTALLED=$(go version)
+          echo "installed: $INSTALLED"
+          # Extract major.minor from installed version
+          VERSION=$(go version | grep -oP 'go\K[0-9]+\.[0-9]+')
+          echo "major.minor: $VERSION"
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          if [ "$MAJOR" -lt 1 ] || { [ "$MAJOR" -eq 1 ] && [ "$MINOR" -lt 20 ]; }; then
+            echo "FAIL: version $VERSION is below 1.20"
+            exit 1
+          fi
+          if [ "$MAJOR" -gt 1 ] || { [ "$MAJOR" -eq 1 ] && [ "$MINOR" -ge 22 ]; }; then
+            echo "FAIL: version $VERSION is 1.22 or above"
+            exit 1
+          fi
+          echo "PASS: version $VERSION is within range >=1.20 <1.22"
