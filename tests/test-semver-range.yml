@@ -1,0 +1,44 @@
+name: Test Go setup with semver range
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup-go
+        uses: .
+        with:
+          go-version: '>=1.20.0 <1.22.0'
+          cache: false
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Assert go-version output is set
+        env:
+          ACTUAL: ${{ steps.setup-go.outputs.go-version }}
+        run: |
+          echo "actual go-version: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$ACTUAL'"
+      - name: Assert Go version is within the specified range
+        run: |
+          GO_VER="$(go version)"
+          echo "go version: $GO_VER"
+          # Extract major.minor version number using POSIX-compatible grep
+          VER_NUM="$(go version | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)"
+          echo "Parsed version: $VER_NUM"
+          MAJOR="$(echo "$VER_NUM" | cut -d. -f1)"
+          MINOR="$(echo "$VER_NUM" | cut -d. -f2)"
+          echo "Major: $MAJOR, Minor: $MINOR"
+          if [ "$MAJOR" -lt 1 ] || \
+             ([ "$MAJOR" -eq 1 ] && [ "$MINOR" -lt 20 ]) || \
+             ([ "$MAJOR" -eq 1 ] && [ "$MINOR" -ge 22 ]); then
+            echo "FAIL: version $VER_NUM is not in range >=1.20.0 <1.22.0"
+            exit 1
+          fi
+          echo "PASS: Go version $VER_NUM is within the specified range"

@@ -1,0 +1,33 @@
+name: Test cache-dependency-path input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create go.sum fixture
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/hardened/tests/fixtures"
+          touch "$GITHUB_WORKSPACE/hardened/tests/fixtures/go.sum"
+      - id: action
+        uses: .
+        with:
+          go-version: '1.21'
+          cache: true
+          cache-dependency-path: hardened/tests/fixtures/go.sum
+      - name: Assert go-version output is set
+        env:
+          ACTUAL: ${{ steps.action.outputs.go-version }}
+        run: |
+          echo "actual: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: expected go-version output to be non-empty"
+            exit 1
+          fi
+          echo "PASS: go-version=$ACTUAL"
+      - name: Assert Go binary is available
+        run: |
+          which go
+          go version
+          echo "PASS"
