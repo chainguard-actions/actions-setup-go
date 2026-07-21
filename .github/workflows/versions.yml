@@ -12,7 +12,8 @@ on:
   schedule:
     - cron: 0 0 * * *
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   stable:
@@ -22,7 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Setup Go Stable
         uses: ./
         with:
@@ -37,7 +38,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Setup Go oldStable
         uses: ./
         with:
@@ -59,7 +60,7 @@ jobs:
           - os: macos-13
             architecture: x32
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Setup Go ${{ matrix.version }} ${{ matrix.architecture }}
         uses: ./
         with:
@@ -84,7 +85,7 @@ jobs:
             go: 1.23.2
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: setup-go ${{ matrix.go }}
         uses: ./
@@ -105,7 +106,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
         go-version: ['1.20', '1.21', '1.22', '1.23']
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Setup Go and check latest
         uses: ./
         with:
@@ -121,7 +122,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Setup Go and check latest
         uses: ./
         with:
@@ -137,7 +138,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest, macos-13]
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Setup Go and check latest
         uses: ./
         with:
@@ -155,7 +156,7 @@ jobs:
         go: [1.20.14, 1.21.10, 1.22.8, 1.23.2]
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: setup-go ${{ matrix.go }}
         uses: ./
@@ -177,7 +178,7 @@ jobs:
         go: [1.11.12]
     steps:
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: setup-go ${{ matrix.go }}
         uses: ./
@@ -207,7 +208,7 @@ jobs:
           - os: macos-13
             architecture: x64
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Setup Go and check latest
         uses: ./
         with:

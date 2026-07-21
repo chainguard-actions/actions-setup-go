@@ -10,7 +10,8 @@ on:
     paths-ignore:
       - '**.md'
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   create-link-if-not-default:
@@ -21,7 +22,7 @@ jobs:
         cache: [false, true]
         go: [1.20.1]
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: 'Setup ${{ matrix.cache }}, cache: ${{ matrix.go }}'
         uses: ./
@@ -96,7 +97,7 @@ jobs:
       matrix:
         cache: [false, true]
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: 'Setup default go, cache: ${{ matrix.cache }}'
         uses: ./
@@ -133,7 +134,7 @@ jobs:
         cache: [false]
         go: [1.20.1]
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: 'Setup ${{ matrix.go }}, cache: ${{ matrix.cache }}'
         uses: ./

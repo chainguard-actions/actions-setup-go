@@ -1,4 +1,4 @@
-name: Test Go setup from go-version-file
+name: Test Go setup with check-latest
 on:
   workflow_dispatch:
 jobs:
@@ -9,7 +9,8 @@ jobs:
       - id: setup
         uses: .
         with:
-          go-version-file: 'tests/fixtures/go-version-file/go.mod'
+          go-version: '1.22.x'
+          check-latest: true
           cache: false
       - name: Assert go-version output is set
         env:
@@ -21,7 +22,7 @@ jobs:
             exit 1
           fi
           echo "PASS: go-version output is '$ACTUAL'"
-      - name: Assert Go is on PATH and version matches go.mod
+      - name: Assert Go 1.22.x is installed
         run: |
           GO_VER="$(go version)"
           echo "go version: $GO_VER"

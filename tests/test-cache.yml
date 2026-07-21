@@ -1,23 +1,20 @@
-name: Test Go setup with cache disabled
+name: Test Go setup with cache
 on:
   workflow_dispatch:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - id: setup-go
+      - id: setup
         uses: .
         with:
           go-version: '1.21.x'
-          cache: false
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+          cache: true
+          cache-dependency-path: 'tests/fixtures/cache-test/go.sum'
       - name: Assert go-version output is set
         env:
-          ACTUAL: ${{ steps.setup-go.outputs.go-version }}
+          ACTUAL: ${{ steps.setup.outputs.go-version }}
         run: |
           echo "actual go-version: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
@@ -25,18 +22,22 @@ jobs:
             exit 1
           fi
           echo "PASS: go-version output is '$ACTUAL'"
-      - name: Assert Go binary is functional
+      - name: Assert cache-hit output is a boolean value
+        env:
+          ACTUAL: ${{ steps.setup.outputs.cache-hit }}
         run: |
-          go version
-          go env GOPATH
-          go env GOROOT
-          echo "PASS: Go environment is functional"
-      - name: Assert GOPATH is accessible via go env
-        run: |
-          GOPATH_VAL="$(go env GOPATH)"
-          echo "GOPATH: $GOPATH_VAL"
-          if [ -z "$GOPATH_VAL" ]; then
-            echo "FAIL: GOPATH is not set (via go env)"
+          echo "actual cache-hit: $ACTUAL"
+          if [ "$ACTUAL" != "true" ] && [ "$ACTUAL" != "false" ] && [ "$ACTUAL" != "" ]; then
+            echo "FAIL: cache-hit should be 'true', 'false', or empty, got: $ACTUAL"
             exit 1
           fi
-          echo "PASS: GOPATH is set to '$GOPATH_VAL'"
+          echo "PASS: cache-hit is '$ACTUAL'"
+      - name: Assert Go is on PATH
+        run: |
+          GO_VER="$(go version)"
+          echo "go version: $GO_VER"
+          if ! echo "$GO_VER" | grep -q "go1.21"; then
+            echo "FAIL: expected go1.21.x but got: $GO_VER"
+            exit 1
+          fi
+          echo "PASS"
