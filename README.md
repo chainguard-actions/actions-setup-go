@@ -8,6 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
+| v4.3.0 | [`v4.3.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v4.3.0) | [`7b8cf10`](https://github.com/actions/setup-go/commit/7b8cf10d4e4a01d4992d18a89f4d7dc5a3e6d6f4) |
 | v5.6.0 | [`v5.6.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v5.6.0) | [`40f1582`](https://github.com/actions/setup-go/commit/40f1582b2485089dde7abd97c1529aa768e1baff) |
 | v6.3.0 | [`v6.3.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v6.3.0) | — |
 | v6.4.0 | [`v6.4.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v6.4.0) | [`4a36011`](https://github.com/actions/setup-go/commit/4a3601121dd01d1626a1e23e37211e3254c1c06c) |
