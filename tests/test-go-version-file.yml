@@ -1,0 +1,33 @@
+name: Test Go setup from go-version-file
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          go-version-file: 'tests/fixtures/go-version-file/go.mod'
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          ACTUAL: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "actual go-version: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is set to $ACTUAL"
+      - name: Assert Go is on PATH and matches go.mod version
+        run: |
+          echo "which go: $(which go)"
+          GO_VER="$(go version)"
+          echo "go version: $GO_VER"
+          if ! echo "$GO_VER" | grep -q "go1.20"; then
+            echo "FAIL: expected go1.20.x but got: $GO_VER"
+            exit 1
+          fi
+          echo "PASS: Go 1.20 is installed and on PATH (from go.mod)"
