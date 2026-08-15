@@ -1,4 +1,4 @@
-name: Test Go setup with check-latest enabled
+name: Test basic Go version setup
 on:
   workflow_dispatch:
 jobs:
@@ -9,8 +9,7 @@ jobs:
       - id: setup
         uses: .
         with:
-          go-version: '1.21'
-          check-latest: true
+          go-version: '1.21.x'
           cache: false
       - name: Assert go-version output is set
         env:
@@ -22,7 +21,7 @@ jobs:
             exit 1
           fi
           echo "PASS: go-version output is '$ACTUAL'"
-      - name: Assert Go is on PATH and is 1.21.x
+      - name: Assert Go is on PATH and version matches
         run: |
           which go
           GO_VER=$(go version)

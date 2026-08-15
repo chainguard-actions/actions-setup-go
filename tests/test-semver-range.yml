@@ -1,4 +1,4 @@
-name: Test Go setup with check-latest enabled
+name: Test Go setup with semver range
 on:
   workflow_dispatch:
 jobs:
@@ -9,8 +9,7 @@ jobs:
       - id: setup
         uses: .
         with:
-          go-version: '1.21'
-          check-latest: true
+          go-version: '>=1.20.0'
           cache: false
       - name: Assert go-version output is set
         env:
@@ -22,13 +21,18 @@ jobs:
             exit 1
           fi
           echo "PASS: go-version output is '$ACTUAL'"
-      - name: Assert Go is on PATH and is 1.21.x
+      - name: Assert Go version satisfies range
         run: |
           which go
           GO_VER=$(go version)
           echo "go version: $GO_VER"
-          if ! echo "$GO_VER" | grep -q "go1.21"; then
-            echo "FAIL: expected go1.21.x but got: $GO_VER"
+          # Extract major.minor version number
+          VERSION=$(go version | grep -oP 'go\K[0-9]+\.[0-9]+' | head -1)
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          echo "Parsed major=$MAJOR minor=$MINOR"
+          if [ "$MAJOR" -lt 1 ] || { [ "$MAJOR" -eq 1 ] && [ "$MINOR" -lt 20 ]; }; then
+            echo "FAIL: expected Go >= 1.20 but got: $GO_VER"
             exit 1
           fi
-          echo "PASS"
+          echo "PASS: Go $VERSION satisfies >=1.20.0"

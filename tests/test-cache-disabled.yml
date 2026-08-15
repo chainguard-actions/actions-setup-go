@@ -5,7 +5,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: setup
         uses: .
         with:
@@ -15,24 +15,30 @@ jobs:
         env:
           ACTUAL: ${{ steps.setup.outputs.go-version }}
         run: |
-          echo "actual go-version: $ACTUAL"
+          echo "actual: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
             echo "FAIL: go-version output is empty"
             exit 1
           fi
           echo "PASS: go-version output is '$ACTUAL'"
-      - name: Assert cache-hit output is empty or false when cache disabled
+      - name: Assert cache-hit output is false or empty when cache disabled
         env:
           CACHE_HIT: ${{ steps.setup.outputs.cache-hit }}
         run: |
-          echo "cache-hit: '$CACHE_HIT'"
+          echo "cache-hit: $CACHE_HIT"
+          # When cache is disabled, cache-hit should be empty or false
           if [ "$CACHE_HIT" = "true" ]; then
             echo "FAIL: cache-hit should not be true when cache is disabled"
             exit 1
           fi
-          echo "PASS: cache-hit is '$CACHE_HIT' (not true, as expected with cache disabled)"
-      - name: Assert Go binary is available
+          echo "PASS: cache-hit is '$CACHE_HIT' (expected empty or false)"
+      - name: Assert Go is on PATH
         run: |
           which go
-          go version
-          echo "PASS: go binary found in PATH"
+          GO_VER=$(go version)
+          echo "go version: $GO_VER"
+          if ! echo "$GO_VER" | grep -q "go1.22"; then
+            echo "FAIL: expected go1.22.x but got: $GO_VER"
+            exit 1
+          fi
+          echo "PASS"
