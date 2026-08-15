@@ -1,0 +1,49 @@
+name: Test Go setup with caching
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create go module files for cache
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/tests/fixtures/gomod-cache"
+          cat > "$GITHUB_WORKSPACE/tests/fixtures/gomod-cache/go.mod" <<'EOF'
+          module example.com/cachetest
+
+          go 1.21
+          EOF
+          touch "$GITHUB_WORKSPACE/tests/fixtures/gomod-cache/go.sum"
+      - id: setup
+        uses: .
+        with:
+          go-version: '1.21.x'
+          cache: true
+          cache-dependency-path: 'tests/fixtures/gomod-cache/go.sum'
+      - name: Assert go-version output is set
+        env:
+          GO_VERSION: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "go-version output: $GO_VERSION"
+          if [ -z "$GO_VERSION" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$GO_VERSION'"
+      - name: Assert cache-hit output is set (true or false)
+        env:
+          CACHE_HIT: ${{ steps.setup.outputs.cache-hit }}
+        run: |
+          echo "cache-hit output: $CACHE_HIT"
+          # cache-hit should be either 'true' or 'false' (or empty on first run)
+          if [ "$CACHE_HIT" != "true" ] && [ "$CACHE_HIT" != "false" ] && [ -n "$CACHE_HIT" ]; then
+            echo "FAIL: unexpected cache-hit value '$CACHE_HIT'"
+            exit 1
+          fi
+          echo "PASS: cache-hit output is '$CACHE_HIT'"
+      - name: Assert go binary is on PATH
+        run: |
+          which go || { echo "FAIL: go not found on PATH"; exit 1; }
+          go version
+          echo "PASS: go is available on PATH"

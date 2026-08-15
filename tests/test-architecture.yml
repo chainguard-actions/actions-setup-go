@@ -1,0 +1,35 @@
+name: Test architecture input
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup-go
+        uses: .
+        with:
+          go-version: '1.21'
+          architecture: 'x64'
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          GO_VERSION: ${{ steps.setup-go.outputs.go-version }}
+        run: |
+          echo "go-version: $GO_VERSION"
+          if [ -z "$GO_VERSION" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version is $GO_VERSION"
+      - name: Assert go binary is available and is x64
+        run: |
+          which go
+          go version
+          ARCH=$(go env GOARCH)
+          echo "GOARCH: $ARCH"
+          if [ "$ARCH" != "amd64" ]; then
+            echo "FAIL: expected amd64 architecture, got $ARCH"
+            exit 1
+          fi
+          echo "PASS: architecture is amd64 (x64)"

@@ -1,0 +1,38 @@
+name: Test basic Go version setup
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          go-version: '1.21.x'
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          GO_VERSION: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "go-version output: $GO_VERSION"
+          if [ -z "$GO_VERSION" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$GO_VERSION'"
+      - name: Assert go binary is on PATH
+        run: |
+          which go || { echo "FAIL: go not found on PATH"; exit 1; }
+          go version
+          echo "PASS: go is available on PATH"
+      - name: Assert go version matches requested
+        run: |
+          INSTALLED=$(go version | awk '{print $3}' | sed 's/go//')
+          echo "Installed Go version: $INSTALLED"
+          # Should start with 1.21
+          if [[ "$INSTALLED" != 1.21* ]]; then
+            echo "FAIL: expected Go 1.21.x but got $INSTALLED"
+            exit 1
+          fi
+          echo "PASS: Go version $INSTALLED matches 1.21.x"
