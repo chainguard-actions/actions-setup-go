@@ -6,24 +6,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - id: setup-go
+      - id: action
         uses: .
         with:
           go-version: '1.21'
-          cache: false
           go-download-base-url: 'https://go.dev/dl'
+          cache: false
       - name: Assert go-version output is set
         env:
-          ACTUAL: ${{ steps.setup-go.outputs.go-version }}
+          ACTUAL: ${{ steps.action.outputs.go-version }}
         run: |
           echo "actual: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
-            echo "FAIL: go-version output was empty"
+            echo "FAIL: expected go-version output to be non-empty"
             exit 1
           fi
-          echo "PASS: go-version=$ACTUAL"
-      - name: Assert go binary is available
+          echo "PASS: go-version output is '$ACTUAL'"
+      - name: Assert Go is on PATH and version matches
         run: |
-          which go
-          go version
+          GO_VER="$(go version)"
+          echo "go version: $GO_VER"
+          if ! echo "$GO_VER" | grep -q "go1\.21"; then
+            echo "FAIL: expected go 1.21.x but got: $GO_VER"
+            exit 1
+          fi
           echo "PASS"

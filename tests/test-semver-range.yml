@@ -15,34 +15,29 @@ jobs:
         env:
           ACTUAL: ${{ steps.setup.outputs.go-version }}
         run: |
-          echo "actual go-version: $ACTUAL"
+          echo "actual: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
             echo "FAIL: go-version output is empty"
             exit 1
           fi
           echo "PASS: go-version output is '$ACTUAL'"
-      - name: Assert Go binary is in PATH
+      - name: Assert go binary is on PATH
         run: |
-          if ! command -v go &>/dev/null; then
-            echo "FAIL: go binary not found in PATH"
-            exit 1
-          fi
-          echo "PASS: go found at $(command -v go)"
-      - name: Assert installed Go version is within range
+          which go || { echo "FAIL: go not found on PATH"; exit 1; }
+          echo "PASS: go is on PATH"
+      - name: Assert go version is within range
         run: |
-          INSTALLED=$(go version)
-          echo "installed: $INSTALLED"
-          # Extract major.minor from installed version
-          VERSION=$(go version | grep -oP 'go\K[0-9]+\.[0-9]+')
-          echo "major.minor: $VERSION"
-          MAJOR=$(echo "$VERSION" | cut -d. -f1)
-          MINOR=$(echo "$VERSION" | cut -d. -f2)
-          if [ "$MAJOR" -lt 1 ] || { [ "$MAJOR" -eq 1 ] && [ "$MINOR" -lt 20 ]; }; then
-            echo "FAIL: version $VERSION is below 1.20"
+          GO_VER="$(go version)"
+          echo "go version: $GO_VER"
+          # Extract minor version number
+          MINOR=$(go version | grep -oE 'go1\.[0-9]+' | head -1 | grep -oE '[0-9]+$')
+          echo "minor version: $MINOR"
+          if [ -z "$MINOR" ]; then
+            echo "FAIL: could not parse minor version from: $GO_VER"
             exit 1
           fi
-          if [ "$MAJOR" -gt 1 ] || { [ "$MAJOR" -eq 1 ] && [ "$MINOR" -ge 22 ]; }; then
-            echo "FAIL: version $VERSION is 1.22 or above"
+          if [ "$MINOR" -lt 20 ] || [ "$MINOR" -ge 22 ]; then
+            echo "FAIL: expected go1.20.x or go1.21.x but got: $GO_VER"
             exit 1
           fi
-          echo "PASS: version $VERSION is within range >=1.20 <1.22"
+          echo "PASS: go version $GO_VER is within range >=1.20.0 <1.22.0"

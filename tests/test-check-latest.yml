@@ -1,4 +1,4 @@
-name: Test Go setup from .go-version file
+name: Test Go setup with check-latest
 on:
   workflow_dispatch:
 jobs:
@@ -9,7 +9,8 @@ jobs:
       - id: setup
         uses: .
         with:
-          go-version-file: 'tests/fixtures/.go-version'
+          go-version: '1.x'
+          check-latest: true
           cache: false
       - name: Assert go-version output is set
         env:
@@ -25,12 +26,12 @@ jobs:
         run: |
           which go || { echo "FAIL: go not found on PATH"; exit 1; }
           echo "PASS: go is on PATH"
-      - name: Assert go version matches .go-version
+      - name: Assert go version is at least 1.x
         run: |
           GO_VER="$(go version)"
           echo "go version: $GO_VER"
-          if ! echo "$GO_VER" | grep -q "go1\.23"; then
-            echo "FAIL: expected go1.23.x but got: $GO_VER"
+          if ! echo "$GO_VER" | grep -qE "go1\.[0-9]+"; then
+            echo "FAIL: expected go1.x but got: $GO_VER"
             exit 1
           fi
           echo "PASS"
