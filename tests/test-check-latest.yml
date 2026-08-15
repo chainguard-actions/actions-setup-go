@@ -1,4 +1,4 @@
-name: Test Go setup from .go-version file
+name: Test Go setup with check-latest enabled
 on:
   workflow_dispatch:
 jobs:
@@ -9,7 +9,8 @@ jobs:
       - id: setup
         uses: .
         with:
-          go-version-file: 'tests/fixtures/.go-version'
+          go-version: '1.21'
+          check-latest: true
           cache: false
       - name: Assert go-version output is set
         env:
@@ -29,12 +30,12 @@ jobs:
             exit 1
           fi
           echo "PASS: go binary found at $(which go)"
-      - name: Assert go version matches .go-version (1.22.0)
+      - name: Assert go version is 1.21.x
         run: |
           INSTALLED="$(go version)"
           echo "installed: $INSTALLED"
-          if ! echo "$INSTALLED" | grep -q "go1.22"; then
-            echo "FAIL: expected go1.22.x but got: $INSTALLED"
+          if ! echo "$INSTALLED" | grep -q "go1.21"; then
+            echo "FAIL: expected go1.21.x but got: $INSTALLED"
             exit 1
           fi
           echo "PASS"

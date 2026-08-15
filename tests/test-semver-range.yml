@@ -1,4 +1,4 @@
-name: Test Go setup from .go-version file
+name: Test Go setup with semver range
 on:
   workflow_dispatch:
 jobs:
@@ -9,7 +9,7 @@ jobs:
       - id: setup
         uses: .
         with:
-          go-version-file: 'tests/fixtures/.go-version'
+          go-version: '>=1.20.0 <1.23.0'
           cache: false
       - name: Assert go-version output is set
         env:
@@ -29,12 +29,21 @@ jobs:
             exit 1
           fi
           echo "PASS: go binary found at $(which go)"
-      - name: Assert go version matches .go-version (1.22.0)
+      - name: Assert installed version is within range
         run: |
           INSTALLED="$(go version)"
           echo "installed: $INSTALLED"
-          if ! echo "$INSTALLED" | grep -q "go1.22"; then
-            echo "FAIL: expected go1.22.x but got: $INSTALLED"
+          # Extract major.minor version number
+          VERSION=$(go version | grep -oP 'go\K[0-9]+\.[0-9]+')
+          echo "version: $VERSION"
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          MINOR=$(echo "$VERSION" | cut -d. -f2)
+          if [ "$MAJOR" -lt 1 ] || ([ "$MAJOR" -eq 1 ] && [ "$MINOR" -lt 20 ]); then
+            echo "FAIL: version $VERSION is below minimum 1.20"
             exit 1
           fi
-          echo "PASS"
+          if [ "$MAJOR" -gt 1 ] || ([ "$MAJOR" -eq 1 ] && [ "$MINOR" -ge 23 ]); then
+            echo "FAIL: version $VERSION is above maximum 1.22.x"
+            exit 1
+          fi
+          echo "PASS: version $VERSION is within range >=1.20.0 <1.23.0"

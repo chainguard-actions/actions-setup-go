@@ -10,7 +10,7 @@ jobs:
         uses: .
         with:
           go-version: '1.21'
-          architecture: x64
+          architecture: 'x64'
           cache: false
       - name: Assert go-version output is set
         env:
@@ -18,12 +18,21 @@ jobs:
         run: |
           echo "actual: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
-            echo "FAIL: go-version output was empty"
+            echo "FAIL: go-version output is empty"
             exit 1
           fi
-          echo "PASS: go-version=$ACTUAL"
-      - name: Assert go binary is available
+          echo "PASS: go-version output is set to $ACTUAL"
+      - name: Assert go is available on PATH
         run: |
           which go
           go version
-          echo "PASS"
+          echo "PASS: go is available"
+      - name: Assert go version matches expected
+        run: |
+          GO_VER="$(go version)"
+          echo "go version: $GO_VER"
+          if ! echo "$GO_VER" | grep -q "go1.21"; then
+            echo "FAIL: expected go1.21.x but got: $GO_VER"
+            exit 1
+          fi
+          echo "PASS: go version matches expected"

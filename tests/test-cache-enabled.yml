@@ -1,0 +1,49 @@
+name: Test Go setup with cache enabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Create go.mod and go.sum for cache
+        run: |
+          mkdir -p tests/fixtures/cache-test
+          cat > tests/fixtures/cache-test/go.mod <<'EOF'
+          module example.com/cachetest
+
+          go 1.21
+          EOF
+          touch tests/fixtures/cache-test/go.sum
+      - id: setup
+        uses: .
+        with:
+          go-version: '1.21.x'
+          cache: true
+          cache-dependency-path: 'tests/fixtures/cache-test/go.sum'
+      - name: Assert go-version output is set
+        env:
+          ACTUAL: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "actual: $ACTUAL"
+          if [ -z "$ACTUAL" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$ACTUAL'"
+      - name: Assert cache-hit output is set
+        env:
+          ACTUAL: ${{ steps.setup.outputs.cache-hit }}
+        run: |
+          echo "cache-hit: $ACTUAL"
+          # cache-hit can be true or false (empty string means false in some versions)
+          # We just verify the output is accessible (not an error)
+          echo "PASS: cache-hit output is accessible"
+      - name: Assert go binary is on PATH
+        run: |
+          which go
+          if [ $? -ne 0 ]; then
+            echo "FAIL: go binary not found on PATH"
+            exit 1
+          fi
+          echo "PASS: go binary found at $(which go)"

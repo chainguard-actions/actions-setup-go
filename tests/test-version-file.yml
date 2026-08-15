@@ -1,4 +1,4 @@
-name: Test Go setup from go.mod version file
+name: Test Go setup from go-version-file (go.mod)
 on:
   workflow_dispatch:
 jobs:
@@ -6,32 +6,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - id: setup-go
+      - id: setup
         uses: .
         with:
-          go-version-file: 'tests/fixtures/go.mod'
+          go-version-file: 'tests/fixtures/gomod/go.mod'
           cache: false
       - name: Assert go-version output is set
         env:
-          ACTUAL: ${{ steps.setup-go.outputs.go-version }}
+          ACTUAL: ${{ steps.setup.outputs.go-version }}
         run: |
-          echo "actual go-version output: $ACTUAL"
+          echo "actual: $ACTUAL"
           if [ -z "$ACTUAL" ]; then
             echo "FAIL: go-version output is empty"
             exit 1
           fi
           echo "PASS: go-version output is '$ACTUAL'"
-      - name: Assert Go is available in PATH
+      - name: Assert go binary is on PATH
         run: |
           which go
-          go version
-          echo "PASS: go is available in PATH"
-      - name: Assert Go version matches go.mod
+          if [ $? -ne 0 ]; then
+            echo "FAIL: go binary not found on PATH"
+            exit 1
+          fi
+          echo "PASS: go binary found at $(which go)"
+      - name: Assert go version matches go.mod (1.21.x)
         run: |
-          INSTALLED=$(go version | grep -oE '[0-9]+\.[0-9]+' | head -1)
-          echo "installed major.minor: $INSTALLED"
-          if [ "$INSTALLED" != "1.22" ]; then
-            echo "FAIL: expected Go 1.22.x from go.mod, got $INSTALLED"
+          INSTALLED="$(go version)"
+          echo "installed: $INSTALLED"
+          if ! echo "$INSTALLED" | grep -q "go1.21"; then
+            echo "FAIL: expected go1.21.x but got: $INSTALLED"
             exit 1
           fi
           echo "PASS"
