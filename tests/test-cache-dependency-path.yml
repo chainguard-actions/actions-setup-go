@@ -7,36 +7,38 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Create a go.mod and go.sum for cache-dependency-path
+      - name: Create go.mod and go.sum for cache dependency path
         run: |
-          mkdir -p /tmp/goproject
-          cat > /tmp/goproject/go.mod <<'EOF'
+          mkdir -p "$GITHUB_WORKSPACE/hardened/tests/fixtures/gomod"
+          cat > "$GITHUB_WORKSPACE/hardened/tests/fixtures/gomod/go.mod" << 'EOF'
           module example.com/test
 
           go 1.21
           EOF
-          touch /tmp/goproject/go.sum
+          touch "$GITHUB_WORKSPACE/hardened/tests/fixtures/gomod/go.sum"
 
       - id: action
         uses: .
         with:
           go-version: '1.21'
           cache: true
-          cache-dependency-path: /tmp/goproject/go.sum
+          cache-dependency-path: hardened/tests/fixtures/gomod/go.sum
 
       - name: Assert go-version output is set
         env:
-          ACTUAL: ${{ steps.action.outputs.go-version }}
+          GO_VERSION: ${{ steps.action.outputs.go-version }}
         run: |
-          echo "actual go-version: $ACTUAL"
-          if [ -z "$ACTUAL" ]; then
+          echo "go-version: $GO_VERSION"
+          if [ -z "$GO_VERSION" ]; then
             echo "FAIL: go-version output is empty"
             exit 1
           fi
-          echo "PASS: go-version output is '$ACTUAL'"
+          echo "PASS: go-version is '$GO_VERSION'"
 
       - name: Assert Go is on PATH
         run: |
-          which go
-          go version
-          echo "PASS: go is available on PATH"
+          if ! command -v go &>/dev/null; then
+            echo "FAIL: go not found on PATH"
+            exit 1
+          fi
+          echo "PASS: go found at $(command -v go)"
