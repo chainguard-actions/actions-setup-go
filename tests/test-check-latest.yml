@@ -1,0 +1,34 @@
+name: Test Go setup with check-latest enabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: setup
+        uses: .
+        with:
+          go-version: '1.21'
+          check-latest: true
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          GO_VERSION: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "go-version output: $GO_VERSION"
+          if [ -z "$GO_VERSION" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$GO_VERSION'"
+      - name: Assert go binary is on PATH and is at least 1.21
+        run: |
+          which go
+          INSTALLED="$(go version)"
+          echo "installed: $INSTALLED"
+          if ! echo "$INSTALLED" | grep -qE "go1\.(2[1-9]|[3-9][0-9])"; then
+            echo "FAIL: expected go1.21 or later but got: $INSTALLED"
+            exit 1
+          fi
+          echo "PASS: go binary is on PATH with version >= 1.21"
