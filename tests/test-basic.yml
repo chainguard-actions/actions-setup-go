@@ -1,0 +1,42 @@
+name: Test basic Go setup with explicit version
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare tool cache directory
+        run: |
+          mkdir -p /tmp/hostedtoolcache
+          echo "RUNNER_TOOL_CACHE=/tmp/hostedtoolcache" >> "$GITHUB_ENV"
+      - id: setup
+        uses: .
+        with:
+          go-version: '1.22.x'
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          GO_VERSION: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "go-version output: $GO_VERSION"
+          if [ -z "$GO_VERSION" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$GO_VERSION'"
+      - name: Assert Go is on PATH and correct version
+        run: |
+          echo "which go: $(which go)"
+          GO_BIN="$(which go)"
+          if [ -z "$GO_BIN" ]; then
+            echo "FAIL: go not found on PATH"
+            exit 1
+          fi
+          INSTALLED="$(go version)"
+          echo "installed: $INSTALLED"
+          if ! echo "$INSTALLED" | grep -q "go1.22"; then
+            echo "FAIL: expected go1.22.x but got: $INSTALLED"
+            exit 1
+          fi
+          echo "PASS: Go is on PATH with correct version"

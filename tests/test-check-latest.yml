@@ -1,0 +1,36 @@
+name: Test Go setup with check-latest enabled
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare tool cache directory
+        run: |
+          mkdir -p /tmp/hostedtoolcache
+          echo "RUNNER_TOOL_CACHE=/tmp/hostedtoolcache" >> "$GITHUB_ENV"
+      - id: setup
+        uses: .
+        with:
+          go-version: '1.22.x'
+          check-latest: true
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          GO_VERSION: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "go-version output: $GO_VERSION"
+          if [ -z "$GO_VERSION" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          if ! echo "$GO_VERSION" | grep -qE '^1\.22\.'; then
+            echo "FAIL: expected version matching 1.22.x but got: $GO_VERSION"
+            exit 1
+          fi
+          echo "PASS: go-version output '$GO_VERSION' satisfies 1.22.x with check-latest"
+      - name: Assert Go binary is available and functional
+        run: |
+          go version
+          echo "PASS: go binary is functional"

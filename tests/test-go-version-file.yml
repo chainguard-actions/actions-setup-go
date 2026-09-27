@@ -1,0 +1,35 @@
+name: Test Go setup with go-version-file (go.mod)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare tool cache directory
+        run: |
+          mkdir -p /tmp/hostedtoolcache
+          echo "RUNNER_TOOL_CACHE=/tmp/hostedtoolcache" >> "$GITHUB_ENV"
+      - id: setup
+        uses: .
+        with:
+          go-version-file: '${{ github.workspace }}/tests/fixtures/go-version-file/go.mod'
+          cache: false
+      - name: Assert go-version output is set from go.mod
+        env:
+          GO_VERSION: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "go-version output: $GO_VERSION"
+          if [ -z "$GO_VERSION" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          if ! echo "$GO_VERSION" | grep -qE '^1\.22'; then
+            echo "FAIL: expected version matching 1.22 (from go.mod) but got: $GO_VERSION"
+            exit 1
+          fi
+          echo "PASS: go-version output '$GO_VERSION' matches go.mod version"
+      - name: Assert Go binary is available
+        run: |
+          go version
+          echo "PASS: go binary is functional"

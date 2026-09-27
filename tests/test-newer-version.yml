@@ -1,0 +1,53 @@
+name: Test Go setup with a newer version (1.23.x)
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare tool cache directory
+        run: |
+          mkdir -p /tmp/hostedtoolcache
+          echo "RUNNER_TOOL_CACHE=/tmp/hostedtoolcache" >> "$GITHUB_ENV"
+      - id: setup
+        uses: .
+        with:
+          go-version: '1.23.x'
+          cache: false
+      - name: Assert go-version output matches 1.23.x
+        env:
+          GO_VERSION: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "go-version output: $GO_VERSION"
+          if [ -z "$GO_VERSION" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          if ! echo "$GO_VERSION" | grep -qE '^1\.23\.'; then
+            echo "FAIL: expected version matching 1.23.x but got: $GO_VERSION"
+            exit 1
+          fi
+          echo "PASS: go-version output '$GO_VERSION' matches 1.23.x"
+      - name: Assert Go binary reports correct version
+        run: |
+          INSTALLED="$(go version)"
+          echo "installed: $INSTALLED"
+          if ! echo "$INSTALLED" | grep -q "go1.23"; then
+            echo "FAIL: expected go1.23.x but got: $INSTALLED"
+            exit 1
+          fi
+          echo "PASS: Go 1.23.x is installed and functional"
+      - name: Assert GOPATH and GOROOT are set
+        run: |
+          echo "GOPATH: $(go env GOPATH)"
+          echo "GOROOT: $(go env GOROOT)"
+          if [ -z "$(go env GOPATH)" ]; then
+            echo "FAIL: GOPATH is not set"
+            exit 1
+          fi
+          if [ -z "$(go env GOROOT)" ]; then
+            echo "FAIL: GOROOT is not set"
+            exit 1
+          fi
+          echo "PASS: GOPATH and GOROOT are set"

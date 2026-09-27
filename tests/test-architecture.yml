@@ -1,0 +1,38 @@
+name: Test Go setup with explicit architecture
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Prepare tool cache directory
+        run: |
+          mkdir -p /tmp/hostedtoolcache
+          echo "RUNNER_TOOL_CACHE=/tmp/hostedtoolcache" >> "$GITHUB_ENV"
+      - id: setup
+        uses: .
+        with:
+          go-version: '1.22.x'
+          architecture: 'x64'
+          cache: false
+      - name: Assert go-version output is set
+        env:
+          GO_VERSION: ${{ steps.setup.outputs.go-version }}
+        run: |
+          echo "go-version output: $GO_VERSION"
+          if [ -z "$GO_VERSION" ]; then
+            echo "FAIL: go-version output is empty"
+            exit 1
+          fi
+          echo "PASS: go-version output is '$GO_VERSION'"
+      - name: Assert Go binary is available and correct architecture
+        run: |
+          go version
+          GOARCH="$(go env GOARCH)"
+          echo "GOARCH: $GOARCH"
+          if [ "$GOARCH" != "amd64" ]; then
+            echo "FAIL: expected GOARCH=amd64 but got: $GOARCH"
+            exit 1
+          fi
+          echo "PASS: Go is installed with correct architecture (amd64)"
