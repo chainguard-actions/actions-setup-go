@@ -12,6 +12,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | v5.5.0 | [`v5.5.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v5.5.0) | [`d35c59a`](https://github.com/actions/setup-go/commit/d35c59abb061a4a6fb18e82ac0862c26744d6ab5) |
 | v5.6.0 | [`v5.6.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v5.6.0) | [`40f1582`](https://github.com/actions/setup-go/commit/40f1582b2485089dde7abd97c1529aa768e1baff) |
 | v6.1.0 | [`v6.1.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v6.1.0) | [`4dc6199`](https://github.com/actions/setup-go/commit/4dc6199c7b1a012772edbd06daecab0f50c9053c) |
+| v6.2.0 | [`v6.2.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v6.2.0) | [`7a3fe6c`](https://github.com/actions/setup-go/commit/7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5) |
 | v6.3.0 | [`v6.3.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v6.3.0) | [`4b73464`](https://github.com/actions/setup-go/commit/4b73464bb391d4059bd26b0524d20df3927bd417) |
 | v6.4.0 | [`v6.4.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v6.4.0) | [`4a36011`](https://github.com/actions/setup-go/commit/4a3601121dd01d1626a1e23e37211e3254c1c06c) |
 | v6.5.0 | [`v6.5.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v6.5.0) | [`924ae3a`](https://github.com/actions/setup-go/commit/924ae3a1cded613372ab5595356fb5720e22ba16) |
