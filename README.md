@@ -9,6 +9,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
 | v4.3.0 | [`v4.3.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v4.3.0) | [`7b8cf10`](https://github.com/actions/setup-go/commit/7b8cf10d4e4a01d4992d18a89f4d7dc5a3e6d6f4) |
+| v5.0.0 | [`v5.0.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v5.0.0) | [`0c52d54`](https://github.com/actions/setup-go/commit/0c52d547c9bc32b1aa3301fd7a9cb496313a4491) |
 | v5.5.0 | [`v5.5.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v5.5.0) | [`d35c59a`](https://github.com/actions/setup-go/commit/d35c59abb061a4a6fb18e82ac0862c26744d6ab5) |
 | v5.6.0 | [`v5.6.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v5.6.0) | [`40f1582`](https://github.com/actions/setup-go/commit/40f1582b2485089dde7abd97c1529aa768e1baff) |
 | v6.1.0 | [`v6.1.0`](https://github.com/chainguard-actions/actions-setup-go/tree/v6.1.0) | [`4dc6199`](https://github.com/actions/setup-go/commit/4dc6199c7b1a012772edbd06daecab0f50c9053c) |
