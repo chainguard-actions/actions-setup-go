@@ -1,0 +1,31 @@
+name: Test cache-dependency-path
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          go-version: '1.20'
+          cache: true
+          cache-dependency-path: tests/fixtures/gosum/go.sum
+      - name: Assert go installed
+        env:
+          ACTUAL: ${{ steps.action.outputs.go-version }}
+          CACHE_HIT: ${{ steps.action.outputs.cache-hit }}
+        run: |
+          echo "go-version: $ACTUAL"
+          echo "cache-hit: $CACHE_HIT"
+          case "$ACTUAL" in
+            1.20*) echo "PASS: version" ;;
+            *) echo "FAIL: expected version starting with 1.20"; exit 1 ;;
+          esac
+          if [ -n "$CACHE_HIT" ] && [ "$CACHE_HIT" != "true" ] && [ "$CACHE_HIT" != "false" ]; then
+            echo "FAIL: cache-hit has unexpected value"
+            exit 1
+          fi
+          go version | grep -q 'go1\.20' || { echo "FAIL: go on PATH not 1.20"; exit 1; }
+          echo "PASS"

@@ -1,0 +1,30 @@
+name: Test architecture
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          go-version: '1.20'
+          architecture: x64
+          cache: false
+      - name: Assert go installed for x64
+        env:
+          ACTUAL: ${{ steps.action.outputs.go-version }}
+        run: |
+          echo "go-version: $ACTUAL"
+          case "$ACTUAL" in
+            1.20*) echo "PASS: version" ;;
+            *) echo "FAIL: expected version starting with 1.20"; exit 1 ;;
+          esac
+          GOARCH="$(go env GOARCH)"
+          echo "GOARCH: $GOARCH"
+          if [ "$GOARCH" != "amd64" ]; then
+            echo "FAIL: expected GOARCH amd64"
+            exit 1
+          fi
+          echo "PASS"

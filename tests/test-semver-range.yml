@@ -1,0 +1,22 @@
+name: Test semver range
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          go-version: '>=1.18.0 <1.19.0'
+          cache: false
+      - name: Assert resolved version within range
+        env:
+          ACTUAL: ${{ steps.action.outputs.go-version }}
+        run: |
+          echo "actual: $ACTUAL"
+          case "$ACTUAL" in
+            1.18*) echo "PASS" ;;
+            *) echo "FAIL: expected 1.18.x"; exit 1 ;;
+          esac
